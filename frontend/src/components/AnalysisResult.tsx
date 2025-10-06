@@ -1,14 +1,34 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Smile, Frown, Sparkles, UtensilsCrossed } from "lucide-react";
+import { predictSentiment } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
 interface AnalysisResultProps {
   foodType: string;
   sentiment: string;
+  reviewText: string; // เพิ่ม prop สำหรับข้อความรีวิว
 }
 
-export const AnalysisResult = ({ foodType, sentiment }: AnalysisResultProps) => {
-  const isPositive = sentiment === "Positive";
+export const AnalysisResult = ({ foodType, sentiment, reviewText }: AnalysisResultProps) => {
+  const [predictedSentiment, setPredictedSentiment] = useState<string>(sentiment);
+
+  useEffect(() => {
+    const fetchSentiment = async () => {
+      try {
+        const result = await predictSentiment(reviewText);
+        setPredictedSentiment(result.sentiment);
+      } catch (error) {
+        console.error("Error fetching sentiment:", error);
+      }
+    };
+
+    if (reviewText) {
+      fetchSentiment();
+    }
+  }, [reviewText]);
+
+  const isPositive = predictedSentiment === "Positive";
 
   return (
     <Card className="p-6 animate-scale-in shadow-ai">
@@ -36,14 +56,14 @@ export const AnalysisResult = ({ foodType, sentiment }: AnalysisResultProps) => 
                 <>
                   <Smile className="h-6 w-6 text-accent" />
                   <Badge className="text-base py-1 px-3 gradient-accent">
-                    {sentiment}
+                    {predictedSentiment}
                   </Badge>
                 </>
               ) : (
                 <>
                   <Frown className="h-6 w-6 text-destructive" />
                   <Badge variant="destructive" className="text-base py-1 px-3">
-                    {sentiment}
+                    {predictedSentiment}
                   </Badge>
                 </>
               )}

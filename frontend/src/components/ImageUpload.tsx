@@ -1,10 +1,10 @@
 import { useState, useRef } from "react";
-import { Upload, Camera, X } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 interface ImageUploadProps {
-  onImageSelect: (imageUrl: string) => void;
+  onImageSelect: (imageUrl: string | null, file?: File) => void;
   imageUrl: string | null;
 }
 
@@ -16,7 +16,7 @@ export const ImageUpload = ({ onImageSelect, imageUrl }: ImageUploadProps) => {
     if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        onImageSelect(reader.result as string);
+        onImageSelect(reader.result as string, file);
       };
       reader.readAsDataURL(file);
     }
@@ -36,7 +36,7 @@ export const ImageUpload = ({ onImageSelect, imageUrl }: ImageUploadProps) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFile(e.dataTransfer.files[0]);
     }
@@ -50,7 +50,7 @@ export const ImageUpload = ({ onImageSelect, imageUrl }: ImageUploadProps) => {
   };
 
   const handleRemove = () => {
-    onImageSelect("");
+    onImageSelect(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -84,11 +84,10 @@ export const ImageUpload = ({ onImageSelect, imageUrl }: ImageUploadProps) => {
         </div>
       ) : (
         <div
-          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-            dragActive
-              ? "border-primary bg-primary/5"
-              : "border-muted-foreground/25 hover:border-primary/50"
-          }`}
+          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragActive
+            ? "border-primary bg-primary/5"
+            : "border-muted-foreground/25 hover:border-primary/50"
+            }`}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
@@ -110,14 +109,6 @@ export const ImageUpload = ({ onImageSelect, imageUrl }: ImageUploadProps) => {
               >
                 <Upload className="h-4 w-4 mr-2" />
                 Upload
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Camera className="h-4 w-4 mr-2" />
-                Camera
               </Button>
             </div>
           </div>

@@ -9,24 +9,28 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Sparkles } from "lucide-react";
+import { predictFood, predictSentiment } from "@/lib/api";
 import {
-  mockFoodClassification,
-  mockSentimentAnalysis,
-  simulateAIProcessing,
   type AnalysisResult as AnalysisResultType,
 } from "@/lib/mockData";
 import { saveAnalysis, getAnalysisHistory } from "@/lib/storage";
 
 const Index = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [comment, setComment] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<{ foodType: string; sentiment: string } | null>(null);
   const [history, setHistory] = useState<AnalysisResultType[]>(getAnalysisHistory());
   const { toast } = useToast();
 
+  const handleImageSelect = (url: string | null, file?: File) => {
+    setImageUrl(url);
+    setImageFile(file || null);
+  };
+
   const handleAnalyze = async () => {
-    if (!imageUrl || !comment.trim()) {
+    if (!imageFile || !comment.trim()) {
       toast({
         title: "Missing Information",
         description: "Please upload an image and write a comment.",
@@ -39,36 +43,42 @@ const Index = () => {
     setResult(null);
 
     try {
-      await simulateAIProcessing(2000);
-      
-      const foodType = mockFoodClassification();
-      const sentiment = mockSentimentAnalysis();
+      // Predict food from image
+      const foodPrediction = await predictFood(imageFile);
+
+      // Predict sentiment from comment
+      const sentimentPrediction = await predictSentiment(comment.trim());
 
       const analysis: AnalysisResultType = {
         id: Date.now().toString(),
-        foodType,
-        sentiment,
+        foodType: foodPrediction.food,
+        sentiment: sentimentPrediction.sentiment as "Positive" | "Negative",
         comment: comment.trim(),
-        imageUrl,
+        imageUrl: imageUrl!,
         timestamp: Date.now(),
       };
 
       saveAnalysis(analysis);
-      setHistory([analysis, ...getAnalysisHistory()]);
-      setResult({ foodType, sentiment: sentiment as string });
+      setHistory(prevHistory => [analysis, ...prevHistory]);
+      setResult({
+        foodType: foodPrediction.food,
+        sentiment: sentimentPrediction.sentiment
+      });
 
       toast({
         title: "Analysis Complete! 🎉",
-        description: `Your ${foodType} review has been analyzed.`,
+        description: `Your ${foodPrediction.food} review has been analyzed. Sentiment: ${sentimentPrediction.sentiment} (${sentimentPrediction.confidence.toFixed(1)}% confidence)`,
       });
 
       // Reset form
       setImageUrl(null);
+      setImageFile(null);
       setComment("");
     } catch (error) {
+      console.error('Analysis error:', error);
       toast({
         title: "Analysis Failed",
-        description: "Something went wrong. Please try again.",
+        description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -79,7 +89,7 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1 container py-8">
         {/* Hero Section */}
         <div className="text-center mb-12 gradient-hero rounded-2xl p-8 animate-slide-up">
@@ -94,8 +104,8 @@ const Index = () => {
         {/* Main Analysis Section */}
         <div className="grid lg:grid-cols-2 gap-8 mb-12">
           <div className="space-y-6">
-            <ImageUpload imageUrl={imageUrl} onImageSelect={setImageUrl} />
-            
+            <ImageUpload imageUrl={imageUrl} onImageSelect={handleImageSelect} />
+
             <Card className="p-6">
               <label className="text-sm font-medium mb-2 block">
                 Your Review
@@ -111,7 +121,7 @@ const Index = () => {
 
             <Button
               onClick={handleAnalyze}
-              disabled={isAnalyzing || !imageUrl || !comment.trim()}
+              disabled={isAnalyzing || !imageFile || !comment.trim()}
               className="w-full gradient-primary text-primary-foreground hover:opacity-90 transition-opacity"
               size="lg"
             >
@@ -131,7 +141,7 @@ const Index = () => {
 
           <div>
             {result ? (
-              <AnalysisResult foodType={result.foodType} sentiment={result.sentiment} />
+              <AnalysisResult foodType={result.foodType} sentiment={result.sentiment} reviewText={comment} />
             ) : (
               <Card className="p-12 flex items-center justify-center border-dashed">
                 <div className="text-center text-muted-foreground">

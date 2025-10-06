@@ -47,6 +47,14 @@ export const Header = () => {
             >
               About
             </Link>
+            <Link
+              to="/api-status"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive("/api-status") ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              API Status
+            </Link>
           </nav>
         </div>
 
