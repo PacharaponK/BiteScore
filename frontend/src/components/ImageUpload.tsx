@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -57,7 +58,10 @@ export const ImageUpload = ({ onImageSelect, imageUrl }: ImageUploadProps) => {
   };
 
   return (
-    <Card className="p-6">
+    <div className="space-y-3">
+      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+        Food Image
+      </label>
       <input
         ref={fileInputRef}
         type="file"
@@ -66,54 +70,99 @@ export const ImageUpload = ({ onImageSelect, imageUrl }: ImageUploadProps) => {
         className="hidden"
       />
 
-      {imageUrl ? (
-        <div className="relative">
-          <img
-            src={imageUrl}
-            alt="Food preview"
-            className="w-full h-64 object-cover rounded-lg"
-          />
-          <Button
-            variant="destructive"
-            size="icon"
-            className="absolute top-2 right-2"
-            onClick={handleRemove}
+      <AnimatePresence mode="wait">
+        {imageUrl ? (
+          <motion.div
+            key="image-preview"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="relative group"
           >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      ) : (
-        <div
-          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragActive
-            ? "border-primary bg-primary/5"
-            : "border-muted-foreground/25 hover:border-primary/50"
-            }`}
-          onDragEnter={handleDrag}
-          onDragLeave={handleDrag}
-          onDragOver={handleDrag}
-          onDrop={handleDrop}
-        >
-          <div className="flex flex-col items-center gap-4">
-            <div className="p-4 rounded-full bg-muted">
-              <Upload className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <div>
-              <p className="text-sm font-medium mb-1">Drop your food image here</p>
-              <p className="text-xs text-muted-foreground">or click to browse</p>
-            </div>
-            <div className="flex gap-2">
+            <motion.img
+              src={imageUrl}
+              alt="Food preview"
+              className="w-full h-72 object-cover rounded-lg shadow-minimal"
+              initial={{ scale: 1.1, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.3 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
               <Button
-                variant="outline"
-                size="sm"
-                onClick={() => fileInputRef.current?.click()}
+                variant="secondary"
+                size="icon"
+                className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity shadow-elevated"
+                onClick={handleRemove}
               >
-                <Upload className="h-4 w-4 mr-2" />
-                Upload
+                <X className="h-4 w-4" />
               </Button>
-            </div>
-          </div>
-        </div>
-      )}
-    </Card>
+            </motion.div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="upload-area"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className={`border border-dashed rounded-lg p-12 text-center transition-all cursor-pointer ${dragActive
+                ? "border-foreground/30 bg-muted/50"
+                : "border-muted-foreground/20 hover:border-foreground/30 hover:bg-muted/30"
+              }`}
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <motion.div
+              className="flex flex-col items-center gap-4"
+              animate={dragActive ? {
+                scale: [1, 1.05, 1],
+                rotate: [0, 5, -5, 0]
+              } : {}}
+              transition={{ duration: 0.6, ease: "easeInOut" }}
+            >
+              <motion.div
+                className="w-16 h-16 rounded-full bg-muted flex items-center justify-center"
+                animate={dragActive ? {
+                  backgroundColor: "hsl(var(--accent) / 0.1)",
+                  borderColor: "hsl(var(--accent))"
+                } : {}}
+                transition={{ duration: 0.3 }}
+              >
+                <motion.div
+                  animate={dragActive ? {
+                    rotate: [0, 180, 360],
+                    scale: [1, 1.2, 1]
+                  } : {}}
+                  transition={{ duration: 0.8, ease: "easeInOut" }}
+                >
+                  <Upload className="h-8 w-8 text-muted-foreground" />
+                </motion.div>
+              </motion.div>
+              <motion.div
+                animate={dragActive ? { y: [0, -2, 0] } : {}}
+                transition={{ duration: 0.6, ease: "easeInOut" }}
+              >
+                <p className="text-base font-medium mb-2">Drop image here</p>
+                <p className="text-sm text-muted-foreground">
+                  or click to browse files
+                </p>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };

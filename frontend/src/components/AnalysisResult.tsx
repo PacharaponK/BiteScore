@@ -31,46 +31,50 @@ export const AnalysisResult = ({ foodType, sentiment, reviewText }: AnalysisResu
   const isPositive = predictedSentiment === "Positive";
 
   return (
-    <Card className="p-6 animate-scale-in shadow-ai">
-      <div className="flex items-start gap-4">
-        <div className="p-3 rounded-lg gradient-primary">
-          <Sparkles className="h-6 w-6 text-primary-foreground" />
+    <div className="space-y-8 p-8 bg-card rounded-lg shadow-minimal border animate-scale-in">
+      <div className="text-center">
+        <div className="w-16 h-16 rounded-full bg-foreground flex items-center justify-center mx-auto mb-4">
+          <Sparkles className="h-8 w-8 text-background" />
         </div>
-        <div className="flex-1 space-y-4">
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-2">
-              Food Classification
-            </h3>
-            <div className="flex items-center gap-2">
-              <UtensilsCrossed className="h-5 w-5 text-secondary" />
-              <span className="text-2xl font-bold">{foodType}</span>
-            </div>
-          </div>
+        <h3 className="text-lg font-medium text-muted-foreground mb-2">
+          Analysis Complete
+        </h3>
+      </div>
 
-          <div className="pt-4 border-t">
-            <h3 className="text-sm font-medium text-muted-foreground mb-2">
-              Sentiment Analysis
-            </h3>
-            <div className="flex items-center gap-3">
-              {isPositive ? (
-                <>
-                  <Smile className="h-6 w-6 text-accent" />
-                  <Badge className="text-base py-1 px-3 gradient-accent">
-                    {predictedSentiment}
-                  </Badge>
-                </>
-              ) : (
-                <>
-                  <Frown className="h-6 w-6 text-destructive" />
-                  <Badge variant="destructive" className="text-base py-1 px-3">
-                    {predictedSentiment}
-                  </Badge>
-                </>
-              )}
-            </div>
+      <div className="space-y-6">
+        <div className="text-center">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <UtensilsCrossed className="h-5 w-5 text-muted-foreground" />
+            <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+              Food Type
+            </span>
+          </div>
+          <p className="text-2xl font-light">{foodType}</p>
+        </div>
+
+        <div className="h-px bg-border"></div>
+
+        <div className="text-center">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            {isPositive ? (
+              <Smile className="h-5 w-5 text-green-600" />
+            ) : (
+              <Frown className="h-5 w-5 text-red-600" />
+            )}
+            <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+              Sentiment
+            </span>
+          </div>
+          <div className="flex items-center justify-center">
+            <Badge
+              variant={isPositive ? "default" : "destructive"}
+              className="text-base py-2 px-4 font-normal"
+            >
+              {predictedSentiment}
+            </Badge>
           </div>
         </div>
       </div>
-    </Card>
+    </div>
   );
 };

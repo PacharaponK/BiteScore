@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from .predict_food import preprocess_image, predict_food
 from .sentimemt_predict import predict_sentiment
+from .text_food_predict import predict_food_from_text
 
 app = FastAPI(title="Food Classifier & Sentiment API")
 
@@ -38,6 +39,18 @@ class ReviewRequest(BaseModel):
 def predict_review_sentiment(request: ReviewRequest):
     try:
         result = predict_sentiment(request.text)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+# --- Text-based Food Recommendation ---
+class FoodTextRequest(BaseModel):
+    text: str
+
+@app.post("/recommend_food")
+def recommend_food(request: FoodTextRequest):
+    try:
+        result = predict_food_from_text(request.text)
         return result
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

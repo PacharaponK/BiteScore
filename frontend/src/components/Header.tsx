@@ -10,50 +10,46 @@ export const Header = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-8">
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="p-2 rounded-lg gradient-primary">
-              <ChefHat className="h-6 w-6 text-primary-foreground" />
+    <header className="sticky top-0 z-50 w-full glass-effect border-b border-border/50">
+      <div className="container flex h-20 items-center justify-between">
+        <div className="flex items-center gap-12">
+          <Link to="/" className="flex items-center gap-3 hover:opacity-70 transition-opacity">
+            <div className="w-10 h-10 rounded-lg bg-foreground flex items-center justify-center">
+              <ChefHat className="h-5 w-5 text-background" />
             </div>
-            <span className="font-bold text-xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              AI Food Review
+            <span className="font-medium text-xl tracking-tight">
+              BiteScore
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-8">
             <Link
               to="/"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/") ? "text-primary" : "text-muted-foreground"
-              }`}
+              className={`text-sm font-medium transition-all hover:text-foreground ${isActive("/") ? "text-foreground" : "text-muted-foreground"
+                }`}
+            >
+              Home
+            </Link>
+            <Link
+              to="/analyze"
+              className={`text-sm font-medium transition-all hover:text-foreground ${isActive("/analyze") ? "text-foreground" : "text-muted-foreground"
+                }`}
             >
               Analyze
             </Link>
             <Link
-              to="/dashboard"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/dashboard") ? "text-primary" : "text-muted-foreground"
-              }`}
+              to="/recommend"
+              className={`text-sm font-medium transition-all hover:text-foreground ${isActive("/recommend") ? "text-foreground" : "text-muted-foreground"
+                }`}
             >
-              Dashboard
+              Recommend
             </Link>
             <Link
               to="/about"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/about") ? "text-primary" : "text-muted-foreground"
-              }`}
+              className={`text-sm font-medium transition-all hover:text-foreground ${isActive("/about") ? "text-foreground" : "text-muted-foreground"
+                }`}
             >
               About
-            </Link>
-            <Link
-              to="/api-status"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/api-status") ? "text-primary" : "text-muted-foreground"
-              }`}
-            >
-              API Status
             </Link>
           </nav>
         </div>

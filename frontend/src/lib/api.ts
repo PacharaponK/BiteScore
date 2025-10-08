@@ -13,6 +13,12 @@ export interface SentimentPredictionResponse {
   text: string;
 }
 
+export interface FoodRecommendationResponse {
+  food_class: string;
+  food_name: string;
+  confidence: number;
+}
+
 // Predict food from image
 export async function predictFood(file: File): Promise<FoodPredictionResponse> {
   const formData = new FormData();
@@ -46,6 +52,26 @@ export async function predictSentiment(
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.detail || "Failed to predict sentiment");
+  }
+
+  return response.json();
+}
+
+// Recommend food based on text description
+export async function recommendFood(
+  text: string
+): Promise<FoodRecommendationResponse> {
+  const response = await fetch(`${API_BASE_URL}/recommend_food`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ text }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to recommend food");
   }
 
   return response.json();
